@@ -30,6 +30,9 @@ parser.add_argument('--background-color', default=None,
 parser.add_argument('--no-backup', action="store_true", default=False, 
                     help="backup original file or directory")
 parser.add_argument('--change-type', help="change image type i.e. '.png'")
+parser.add_argument('--padding', action="store_true", default=False,
+                    help="add white padding to the desired --width and --height")
+
 
 
 
@@ -80,7 +83,13 @@ def add_background_color(name, color):
     cmd = f'convert {name} -background {color} -alpha remove -alpha off {name}'
     # print(cmd)
     os.system(cmd)
-    
+
+def add_padding(name, width, height):
+    """Add white padding to the image to the desired --width and --height"""
+    size = f"{width}x{height}"
+    cmd = f'convert -size {size} xc:white {name} -gravity center -composite {name}'
+    # print(cmd)
+    os.system(cmd)
     
 
 if __name__ == '__main__':
@@ -88,7 +97,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     action_options = [
-        args.change_type, args.resize, args.greyscale, args.background_color
+        args.change_type, args.resize, args.greyscale, args.background_color, args.padding
         ]
     action_options = [x for x in action_options if x]
     if not action_options:
@@ -127,6 +136,9 @@ if __name__ == '__main__':
 
             if action == args.background_color:
                 add_background_color(image, args.background_color)
-                
+
+            if action == args.padding:
+                add_padding(image, width=args.width, height=args.height)
+
         time.sleep(5)
             
