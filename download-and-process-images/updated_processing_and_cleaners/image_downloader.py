@@ -5,7 +5,7 @@ import sys
 import time
 # import requests_cache
 from concurrent.futures import ProcessPoolExecutor as PoolExecutor
-from image_processor import change_image_type, resize_image, add_padding, convert_to_greyscale
+from image_processor import change_image_type, add_padding, convert_to_greyscale
 from types import SimpleNamespace
 
 
