@@ -46,27 +46,23 @@ def change_image_type(name, ext, remove_old=True, width=175, height=175):
     old_ext = name.split('.')[-1]
     new_name = f'{old_name}.{ext}'.replace('..', '.')
     if old_ext != ext.strip('.'):
-        cmd = f'convert {name} {new_name}'
+        cmd = f'convert {name} {new_name} >/dev/null 2>&1'
 
         # svg files need inscape
         if old_ext == 'svg':
-            cmd = f"inkscape -z -w {width} -h {height} {name} -e {new_name}"
+            cmd = f"inkscape -z -w {width} -h {height} {name} -e {new_name} >/dev/null 2>&1"
 
         # webp needs webp
         if old_ext == 'webp':
-            cmd = f"dwebp {name} -o {new_name}"
+            cmd = f"dwebp {name} -o {new_name} >/dev/null 2>&1"
 
-        print(f'\n\nRunning command: \n{cmd}\n')
+        # print(f'\n\nRunning command: \n{cmd}\n')
         os.system(cmd)
         # remove previous image
         if remove_old:
             # input('Enter..')
-            time.sleep(5)
             if os.path.exists(new_name):
                 os.system(f'rm {name}')
-            else:
-                print(f'{name} was not converted')
-
     return new_name
 
 
@@ -87,30 +83,18 @@ def get_dominant_color(name):
     return hex.strip()
 
 
-def resize_image(name, width=175, height=175):
+def resize_image(name, new_name, width=175, height=175, padding_argument=''):
     """Resize image to width x height with imagemagick"""
     size = f"{width}x{height}"
-    cmd = f'convert {name} -resize {size} {name}'
-    # print(cmd)
+    if (padding_argument != ''):
+        cmd = f'convert {name} -resize {size} {padding_argument} {new_name} >/dev/null 2>&1'
+    else:
+        cmd = f'convert {name} -resize {size} {new_name} >/dev/null 2>&1'
     os.system(cmd)
 
 
 def convert_to_greyscale(name):
-    """convert image to greyscale with imagemagick"""
-    base, f_name = os.path.split(name)
-
-    #create new folder for greyscaled
-    new_folder = f'{base}_BW'
-
-    if not os.path.isdir(new_folder):
-        os.system(f'mkdir {new_folder}')
-
-    filename = os.path.join(new_folder, f_name)
-
-    #copy the image first before greyscale
-    #shutil.copyfile(name, filename)
-
-    cmd = f'convert {name} -colorspace Gray {filename}'
+    cmd = f'convert {name} -colorspace Gray {name} >/dev/null 2>&1'
     os.system(cmd)
 
 def add_background_color(name, color):
