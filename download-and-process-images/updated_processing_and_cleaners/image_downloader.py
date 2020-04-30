@@ -59,6 +59,16 @@ def getImageExtension(r):
             return '.' + content.split('/')[1]  
     return None
 
+def resize_image(name, new_name, width=175, height=175, padding_argument=''):
+    """Resize image to width x height with imagemagick"""
+    size = f"{width}x{height}"
+    if (padding_argument != ''):
+        cmd = f'convert {name} -resize {size} {padding_argument} {new_name} >/dev/null 2>&1'
+    else:
+        cmd = f'convert {name} -resize {size} {new_name} >/dev/null 2>&1'
+    os.system(cmd)
+
+
 def downloadLogos(file, logo_name_index,logo_url_index):
     processedCSV = []
 
