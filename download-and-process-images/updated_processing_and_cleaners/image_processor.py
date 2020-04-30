@@ -46,7 +46,7 @@ def change_image_type(name, ext, remove_old=True, width=175, height=175):
     old_ext = name.split('.')[-1]
     new_name = f'{old_name}.{ext}'.replace('..', '.')
     if old_ext != ext.strip('.'):
-        cmd = f'convert {name} {new_name} >/dev/null 2>&1'
+        cmd = f'convert-im6.q16 {name} {new_name} >/dev/null 2>&1'
 
         # svg files need inscape
         if old_ext == 'svg':
@@ -152,8 +152,8 @@ if __name__ == '__main__':
             if action == args.change_type:
                 change_image_type(image, args.change_type)
 
-            if action == args.resize:
-                resize_image(image, width=args.width, height=args.height)
+            # if action == args.resize:
+                # resize_image(image, width=args.width, height=args.height)
 
             if action == args.padding:
                 add_padding(image, width=args.f_width,
