@@ -5,9 +5,38 @@ import sys
 import time
 # import requests_cache
 from concurrent.futures import ProcessPoolExecutor as PoolExecutor
-from image_processor import change_image_type, add_padding, convert_to_greyscale
+# from image_processor import change_image_type, convert_to_greyscale
 from types import SimpleNamespace
 
+
+def change_image_type(name, ext, remove_old=True, width=175, height=175):
+    """Change image type of <name> to ext"""
+    old_name = '.'.join(name.split('.')[:-1])
+    old_ext = name.split('.')[-1]
+    new_name = f'{old_name}.{ext}'.replace('..', '.')
+    if old_ext != ext.strip('.'):
+        cmd = f'convert {name} {new_name} >/dev/null 2>&1'
+
+        # svg files need inscape
+        if old_ext == 'svg':
+            cmd = f"inkscape -z -w {width} -h {height} {name} -e {new_name} >/dev/null 2>&1"
+
+        # webp needs webp
+        if old_ext == 'webp':
+            cmd = f"dwebp {name} -o {new_name} >/dev/null 2>&1"
+
+        # print(f'\n\nRunning command: \n{cmd}\n')
+        os.system(cmd)
+        # remove previous image
+        if remove_old:
+            # input('Enter..')
+            if os.path.exists(new_name):
+                os.system(f'rm {name}')
+    return new_name
+
+def convert_to_greyscale(name):
+    cmd = f'convert {name} -colorspace Gray {name} >/dev/null 2>&1'
+    os.system(cmd)
 
 #progress bar
 def progressBar(total, progress):
@@ -201,11 +230,11 @@ def generatebwImages(processedCSV, image_width, image_height, padding, image_hei
         progressBar(len(processedCSV), counter)
         new_name = row[-1].replace('originals/', 'bw/bw_').replace('.png','')
         if (padding == 1):
-            new_name = f"{new_name}_{image_width_w_pad}x{image_height_w_pad}.png"
+            new_name = f"{new_name}-{image_width_w_pad}x{image_height_w_pad}.png"
             padding_argument = f"-background {padding_color} -gravity center -extent {image_width_w_pad}x{image_height_w_pad}"
             resize_image(row[-1], new_name, image_width, image_height, padding_argument)
         else:
-            new_name = f"{new_name}_{image_width}x{image_height}.png"
+            new_name = f"{new_name}-{image_width}x{image_height}.png"
             resize_image(row[-1], new_name, image_width, image_height, 0)
         item = SimpleNamespace()
         item.logo_name = row[-1]
@@ -221,9 +250,12 @@ def generatebwImages(processedCSV, image_width, image_height, padding, image_hei
         counter += 1
         progressBar(len(processedCSV), counter)
         new_name = row[-1].replace('originals/', 'bw/bw_').replace('.png','')
-        new_name = f"{new_name}_{image_width}x{image_height}.png"
+        if (padding == 1):
+            new_name = f"{new_name}-{image_width_w_pad}x{image_height_w_pad}.png"
+        else:
+            new_name = f"{new_name}-{image_width}x{image_height}.png"
         convert_to_greyscale(new_name)
-    tmp = os.system('clear')
+    # tmp = os.system('clear')
     print('Done with bw images resizing...')
     return return_list
 
